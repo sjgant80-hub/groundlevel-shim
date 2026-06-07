@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>groundlevel-shim · CDN drop-in demo</title>
+<style>
+  body { margin:0; padding:40px 20px; font:15px/1.6 -apple-system, system-ui, sans-serif; background:#0a0a0f; color:#e8e8ea; }
+  .wrap { max-width:720px; margin:0 auto; }
+  h1 { margin:0 0 6px; }
+  .sub { color:#8a8a92; margin-bottom:24px; font-size:13px; }
+  pre { background:#0d0d14; border:1px solid #1a1a22; border-radius:6px; padding:14px; overflow:auto; font-size:13px; }
+  a { color:#2563eb; }
+  button { background:#2563eb; color:#fff; border:0; padding:10px 16px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; margin-right:6px; margin-top:8px; }
+  button:hover { background:#1d4ed8; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0; }
+  @media (max-width:640px) { .grid { grid-template-columns:1fr; } }
+  .card { background:#11131a; border:1px solid #1a1a22; border-radius:6px; padding:14px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>◊ groundlevel-shim · live demo</h1>
+  <div class="sub">one <code>&lt;script&gt;</code> tag added everything you see · floating button bottom-right · or call the API directly</div>
+
+  <h2>1 · How it was added</h2>
+  <pre>&lt;script src="../cdn/v1/groundlevel.js" data-widget="bottom-right" defer&gt;&lt;/script&gt;</pre>
+
+  <h2>2 · Open a specific template from JS</h2>
+  <div class="grid">
+    <div class="card">
+      <strong>Letter Before Action</strong><br>
+      <span class="sub">debt recovery · PAP-Debt compliant</span><br>
+      <button onclick="GroundLevel.open('lba')">open LBA</button>
+    </div>
+    <div class="card">
+      <strong>Data Subject Access Request</strong><br>
+      <span class="sub">UK GDPR Article 15</span><br>
+      <button onclick="GroundLevel.open('dsar')">open DSAR</button>
+    </div>
+    <div class="card">
+      <strong>Disrepair Notice</strong><br>
+      <span class="sub">Section 11 Landlord &amp; Tenant Act 1985</span><br>
+      <button onclick="GroundLevel.open('disrepair')">open Disrepair</button>
+    </div>
+    <div class="card">
+      <strong>Formal Grievance</strong><br>
+      <span class="sub">ACAS Code compliant</span><br>
+      <button onclick="GroundLevel.open('grievance')">open Grievance</button>
+    </div>
+    <div class="card">
+      <strong>Subscription Cancellation</strong><br>
+      <span class="sub">CCRs 2013 · CRA 2015</span><br>
+      <button onclick="GroundLevel.open('cancelSubscription')">open Cancel</button>
+    </div>
+    <div class="card">
+      <strong>Consumer Refund</strong><br>
+      <span class="sub">CRA 2015 ss.20-24</span><br>
+      <button onclick="GroundLevel.open('consumerRefund')">open Refund</button>
+    </div>
+  </div>
+
+  <h2>3 · Generate from code (no widget needed)</h2>
+  <pre id="codedraft">click "Build LBA from code" below to populate</pre>
+  <button onclick="buildLBA()">Build LBA from code</button>
+
+  <h2>4 · Search cited authorities</h2>
+  <input id="q" placeholder="search · eg deposit, dismissal, gdpr" style="background:#0d0d14;color:#e8e8ea;border:1px solid #1a1a22;border-radius:5px;padding:9px 12px;width:100%;margin-bottom:8px;font:inherit">
+  <div id="searchOut"></div>
+
+  <h2>The truth-table</h2>
+  <ul>
+    <li>shim: 6 letter templates, 20 bundled authorities, ~22KB · works offline</li>
+    <li><a href="https://github.com/sjgant80-hub/groundlevel-sdk">SDK</a>: full engines (search · weave · risk · draft · audit) for Node + browser</li>
+    <li><a href="https://github.com/sjgant80-hub/groundlevel-worker">Worker</a>: REST API on Cloudflare Workers · OpenAPI 3.1 spec</li>
+    <li><a href="https://github.com/sjgant80-hub/groundlevel">PWA</a>: the full single-file legal toolkit</li>
+  </ul>
+
+</div>
+
+<!-- THE SHIM · one tag -->
+<script src="../cdn/v1/groundlevel.js" data-widget="bottom-right" defer></script>
+
+<script>
+function buildLBA() {
+  const out = GroundLevel.lba({
+    creditor: 'Jane Smith',
+    debtor: 'Acme Corp Ltd',
+    amount: '$4,250',
+    dueDate: '2026-04-30',
+    invoiceRef: 'INV-2026-031',
+  });
+  document.getElementById('codedraft').textContent = out.body.split('\n').slice(0, 16).join('\n') + '\n\n[...truncated for demo · ' + out.body.split('\n').length + ' lines total]';
+}
+
+document.getElementById('q').addEventListener('input', (e) => {
+  const hits = GroundLevel.search(e.target.value);
+  document.getElementById('searchOut').innerHTML = hits.length === 0
+    ? '<div style="color:#8a8a92; font-size:13px">no hits · try: dismissal · deposit · gdpr · denton</div>'
+    : hits.map(c => `<div style="padding:6px 0; border-bottom:1px solid #1a1a22"><div style="font-weight:600; font-size:13px; color:#2563eb">${c.cite}</div><div style="font-size:12px; color:#8a8a92">${c.principle}</div></div>`).join('');
+});
+</script>
+
+</body>
+</html>
